@@ -129,7 +129,9 @@ class UCB:
         if t <= self.n:
             return self.fixed_selection[t]
         else:
-            upper_confidence_bounds = self.mean_reward + np.sqrt(2*np.log(t)/self.counts)
+            delta = np.sqrt(1/t)
+            tmp = 2*np.log(1/delta)/self.counts
+            upper_confidence_bounds = self.mean_reward + np.sqrt(self.mean_reward*tmp) + tmp
             i = np.argmax(upper_confidence_bounds)
             return i
 
@@ -183,7 +185,7 @@ def cpu_lower_bound(params, play_rounds):
         
 def run_experiment(setting):
     play_rounds = 100000
-    repeat_times = 100
+    repeat_times = 1000
     n = setting[0]
     notation = setting[1]
     params = setting[2]
@@ -203,7 +205,7 @@ def run_experiment(setting):
     plt.legend(loc='upper left', frameon=False)
     plt.xlabel('t')
     plt.ylabel('regret')
-    plt.title(notation+' nomal axis')
+    plt.title(notation+' normal axis')
     plt.subplot(122)
     for regret, name in result:
         plt.plot(regret, label=name)
@@ -220,9 +222,6 @@ if __name__ == '__main__':
     from multiprocessing import Pool
     settings = [[2, 'A1', [0.9, 0.8]],
                 [2, 'A2', [0.6, 0.5]],
-                [2, 'A3', [0.9, 0.2]]]
-    settings = [[2, 'A1', [0.9, 0.8]],
-                [2, 'A2', [0.6, 0.5]],
                 [2, 'A3', [0.9, 0.2]],
                 [5, 'B1', [0.9, 0.88, 0.86, 0.84, 0.82]],
                 [5, 'B2', [0.6, 0.58, 0.56, 0.54, 0.52]],
@@ -235,11 +234,6 @@ if __name__ == '__main__':
                             0.47, 0.41, 0.35, 0.29, 0.23, 0.17, 0.11, 0.05]]]
                             
     pool = Pool()
-    pool.map(run_experiment, settings)
+    pool_outputs = pool.map(run_experiment, settings)
     pool.close()
     pool.join()
-                            
-
-        
-    
-        
